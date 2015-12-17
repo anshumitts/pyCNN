@@ -53,7 +53,7 @@ class neuron_layer_cnn(object):
 		self.kernal_size 	=	kernal_size
 		self.depth_of_input =	depth_of_input
 	#Input =[[depth0],[depth1],[depth2]]
-	def output(self,Input):
+	def Out(self,Input):
 		self.Input 	=	Input
 		Outputs 	=	[]
 		for neuron in self.features_map:
@@ -100,7 +100,7 @@ class neuron_layer_cnn(object):
 				
 			
 
-class max_pool(object):
+class max_pool:
 	"""docstring for max_pool"""
 	def __init__(self,features,kernal_size,slide,size):
 		self.depth 		=	features
@@ -108,7 +108,7 @@ class max_pool(object):
 		self.slide		=	slide
 		self.size 		=	int(size/slide)
 		self.img_size	=	size
-	def output(self,Input):
+	def Out(self,Input):
 		size_img=Input[0].shape[1]
 		self.Input=Input
 		Output=[]
@@ -151,7 +151,7 @@ class full_connected(object):
 		self.node_weight	=	rng.randn(self.no_of_classes,features)/1000
 		self.gw 			=	np.ones((self.no_of_classes,features),np.float64)
 		self.B 				=	rng.randn(self.no_of_classes,1)
-	def output(self,Input):
+	def Out(self,Input):
 		self.Input 		=	[[x[0,0]] for x in Input]
 		self.Output 	= 	logistic(Net(self.node_weight,self.Input,self.B))
 		return self.Output

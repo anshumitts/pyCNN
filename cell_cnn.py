@@ -20,6 +20,8 @@ class feature(object):
 			img 		=	(Input[:][row:row+self.kernal_size,col:col+self.kernal_size].reshape(1,-1))
 			input_val	=	np.vstack(img)
 			Output[x]	=	Net(self.W,input_val,self.B)[0][0]
+			if Output[x]<0:
+				Output[x]=0
 			col+=1
 			if col==self.Dimension_x:
 				row+=1
@@ -113,9 +115,11 @@ class max_pool(object):
 			for y in range(size**2):
 				out[y]=max(Input[x][row:row+self.kernal_size,col:col+self.kernal_size].reshape[1,-1][0])
 				col+=self.slide
-				if col>=size_img:
+				if col+self.kernal>=size_img:
 					row+=self.slide
 					col=0
+					if row+self.kernal>=size_img:
+						break
 			Ouput.append(out.reshape(self.size,-1))
 		self.output=Output
 		return Output
@@ -158,8 +162,4 @@ class full_connected(object):
 			Errot_mat[x,:]			=	W*error[x] 
 			self.node_weight[x,:] 	=	W - v.alpha*gw
 			self.B[x,:] 			=	self.B[x,:] - v.alpha*gb
-<<<<<<< HEAD
 		return	Errot_mat.sum(axis=0)
-=======
-		return	Errot_mat.sum(axis=0)
->>>>>>> 84711d03199036f305ba4c2427f3f51cf7f9b927

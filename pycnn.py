@@ -23,7 +23,6 @@ maxP2			=	layer.max_pool(16,2,2,sizeOfImage-4) #8
 sizeOfImage		=	int((sizeOfImage-4)/2)
 layer_2			=	layer.neuron_layer_cnn(16,4,16,sizeOfImage) #4
 
-
 #fully Connected Layer
 sizeOfImage		=	int((sizeOfImage-3))
 Full_connected	=	layer.full_connected(16,v.classes)

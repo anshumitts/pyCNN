@@ -2,7 +2,6 @@ from functions import*
 import variables as v
 rng = np.random
 rng.seed(0)
-
 # contains components of each cel
 class feature(object):
 	"""docstring for feature"""

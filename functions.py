@@ -12,6 +12,7 @@ def log(percent,flag=1):
     if flag==2:    
         logging.debug(percent)
 
+
 X 		= T.dmatrices('X')
 B 		= T.dmatrices('B')
 W 		= T.dmatrices('W')

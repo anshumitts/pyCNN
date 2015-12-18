@@ -4,7 +4,6 @@ from cvxopt.base import matrix
 from pprint import *
 import struct
 import numpy as np
-
 """
 Loosely inspired by http://abel.ee.ucla.edu/cvxopt/_downloads/mnist.py
 which is GPL licensed.
@@ -12,12 +11,6 @@ which is GPL licensed.
 
 
 def read(dataset = "training", path = "."):
-    """
-    Python function for importing the MNIST data set.  It returns an iterator
-    of 2-tuples with the first element being the label and the second element
-    being a numpy.uint8 2D array of pixel data for the given image.
-    """
-
     if dataset is "training":
         fname_img = os.path.join(path, 'train-images.idx3-ubyte')
         fname_lbl = os.path.join(path, 'train-labels.idx1-ubyte')

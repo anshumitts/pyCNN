@@ -28,7 +28,6 @@ layer_2			=	layer.neuron_layer_cnn(16,4,32,sizeOfImage) #4
 sizeOfImage		=	int((sizeOfImage-3))
 Full_connected	=	layer.full_connected(32,v.classes)
 
-
 #parsing data
 Y_act 	=	np.zeros((v.classes,1),np.uint8) 
 parsed	=	imgs.read(path=v.loc_databse)
@@ -53,4 +52,3 @@ for x in range(length):
 	error 	= 	layer_1.error_map(error)
 	error 	= 	maxP1.error_map(error)
 	error 	= 	layer_0.error_map(error)
-	# imgs.show(parsed[x][0])

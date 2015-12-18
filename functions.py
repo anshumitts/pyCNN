@@ -45,17 +45,3 @@ Calc_Error 	=	function(inputs=[Y_act,Y_cal], outputs=[xent])
 # Raise each element of W to power P
 raised		=	W**P
 Power		=	function(inputs=[W,P], outputs=raised)
-
-
-
-# Y_out1 		=	np.zeros((10,10),np.float64)
-# Y_out2 		=	np.ones((10,10),np.float64)*0.5
-# Y_out3		=	np.zeros((2,2))
-# Y_out3[1,0]=1
-# Y_out3[0,0]=1
-# Y_out3[1,1]=1
-# # # print Y_out1
-# # # Y_cal 	=	Calc_Error(Y_out2,Y_out1)
-# # # Y_cal[!]=0
-# Y_out1[5:10,5:10][Y_out3==1]=0.5
-# print Y_out1

@@ -141,7 +141,6 @@ class max_pool:
 					col=0 
 		return Err
 		
-		
 
 # Final fully connected layer for Asigning classes 
 class full_connected(object):

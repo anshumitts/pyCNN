@@ -38,7 +38,6 @@ for x in range(length):
 	F.log((x+1)*100.0/length)
 	Y_act[:,0]				=	0
 	Y_act[parsed[x][1],0]	=	1
-	print x
 	img 	=	[parsed[x][0].astype(float)/2550]
 	img 	=	layer_0.Out(img)
 	img 	=	maxP1.Out(img)
@@ -46,12 +45,12 @@ for x in range(length):
 	img 	=	maxP2.Out(img)
 	img 	=	layer_2.Out(img)
 	Y_cal 	=	Full_connected.Out(img)
-	error 	= 	Full_connected.error_map(Y_act - Y_cal)
+	print np.hstack((Y_act,Y_cal))
+	Y_cal	=	F.final_out(Y_cal)[0] 
+	error 	= 	Full_connected.error_map(Y_cal - Y_act)
 	error 	= 	layer_2.error_map(error)
 	error 	= 	maxP2.error_map(error)
 	error 	= 	layer_1.error_map(error)
 	error 	= 	maxP1.error_map(error)
 	error 	= 	layer_0.error_map(error)
 	# imgs.show(parsed[x][0])
-	print Y_act
-	print Y_cal

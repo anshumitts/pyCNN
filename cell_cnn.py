@@ -161,14 +161,3 @@ class full_connected(object):
 		output 				=(self.node_weight*error).sum(axis=0)
 		output 				=[np.asarray([[x]]) for x in output]
 		return output
-		# Dirivative_arr	=	self.Output*(1-self.Output)
-		# Errot_mat		=	np.zeros(self.node_weight.shape)
-		# for x in range(self.no_of_classes):
-		# 	W 						=	self.node_weight[x,:]
-		# 	error[x]				=	Dirivative_arr[x]*error[x]
-		# 	gw 						=	grade(error[x],[W])[0]
-		# 	gb 						=	grade(error[x],[self.B[x,:]])[0]
-		# 	Errot_mat[x,:]			=	W*error[x] 
-		# 	self.node_weight[x,:] 	=	W - v.alpha*gw
-		# 	self.B[x,:] 			=	self.B[x,:] - v.alpha*gb
-		# return	Errot_mat.sum(axis=0)

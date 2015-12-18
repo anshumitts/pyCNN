@@ -1,19 +1,21 @@
 from functions import*
 import variables as v
 rng = np.random
+rng.seed(0)
 
 # contains components of each cel
 class feature(object):
 	"""docstring for feature"""
 	def __init__(self,depth_of_input,kernal_size,Dimension_x):
-		self.W 			=	rng.randn(1,depth_of_input*kernal_size*kernal_size)/1000
-		self.B 			=	rng.randn(1,1)
+		self.W 			=	2*rng.random((1,depth_of_input*kernal_size*kernal_size))-1
+		self.B 			=	2*rng.random((1,1))-1
+		self.gw 		=	np.zeros(self.W.shape)
 		self.kernal_size=	kernal_size
 		self.depth 		=	depth_of_input
 		self.Dimension_x=	Dimension_x
 
 	def output(self,Input):
-		Output 		=	np.zeros(self.Dimension_x**2,np.float64)
+		Output 		=	np.zeros(self.Dimension_x**2)
 		row 	= 0
 		col 	= 0
 		for x in range(self.Dimension_x**2):
@@ -21,22 +23,22 @@ class feature(object):
 			for y in range(self.depth-1):
 				img 		=	Input[y][row:row+self.kernal_size,col:col+self.kernal_size].reshape(-1,1)
 				input_val	=	np.vstack((input_val,img))
-			Output[x]	=	Net(self.W,input_val,self.B)[0][0]
+			Output[x]		=	Net(self.W,input_val,self.B)[0][0]
 			# if Output[x]<0:
 			# 	Output[x]=0
 			col+=1
 			if col==self.Dimension_x:
 				row+=1
 				col=0
-		Output 	=	Output.reshape(self.Dimension_x,-1)
+		Output 	=	norm(Output.reshape(self.Dimension_x,-1))
 		return Output
 
 	def weights(self):
 		return self.W.reshape(-1,self.kernal_size)
 	
 	def update_weight(self,gw):
-		W_old	=	self.W.reshape(self.kernal_size,-1)
-		self.W 	= 	(self.W - v.alpha*gw)
+		self.gw 	=	v.alpha*gw + v.momt*self.gw
+		self.W 		= 	(self.W - gw)
 
 # contains features of each layer
 class neuron_layer_cnn(object):
@@ -65,9 +67,9 @@ class neuron_layer_cnn(object):
 		pre_size 			=	self.size+self.kernal_size-1
 		depth				=	len(Error)
 		Error_mat_gw 		=	[]
-		error_features_mat	=	np.zeros((self.depth_of_input*self.kernal_size,self.kernal_size),np.float64)
+		error_features_mat	=	np.zeros((self.depth_of_input*self.kernal_size,self.kernal_size))
 		Error_mat_pre_yr	=	[]
-		error_pre_lyr		=	np.zeros((pre_size,pre_size),np.float64)
+		error_pre_lyr		=	np.zeros((pre_size,pre_size))
 		for t in range(depth):
 			Error_mat_gw.append(error_features_mat)
 		for q in range(self.depth_of_input):
@@ -115,7 +117,7 @@ class max_pool:
 		for x in range(self.depth):
 			row=0
 			col=0
-			out= np.zeros(self.size**2,np.float64)
+			out= np.zeros(self.size**2)
 			for y in range(self.size**2):
 				out[y]=np.amax(Input[x][row:row+self.kernal,col:col+self.kernal])
 				col+=self.slide
@@ -147,16 +149,19 @@ class full_connected(object):
 	"""docstring for full_connected"""
 	def __init__(self, features,no_of_classes):
 		self.no_of_classes	=	no_of_classes
-		self.node_weight	=	rng.randn(self.no_of_classes,features)/1000
-		self.gw 			=	np.ones((self.no_of_classes,features),np.float64)
-		self.B 				=	rng.randn(self.no_of_classes,1)
+		self.node_weight	=	2*rng.random((self.no_of_classes,features))-1
+		self.gw 			=	np.zeros((self.no_of_classes,features))
+		self.B 				=	2*rng.random((self.no_of_classes,1))-1
 	def Out(self,Input):
-		self.Input 		=	[[x[0,0]] for x in Input]
+		self.Input 		=	norm([[x[0,0]] for x in Input])
+		# print self.Input
 		self.Output 	= 	logistic(Net(self.node_weight,self.Input,self.B))
 		return self.Output
 	def error_map(self,error):
-		self.gw 			=(self.gw*(np.asarray(self.Input).reshape(1,-1)))*error
-		self.node_weight-=v.alpha*self.gw
-		output 				=(self.node_weight*error).sum(axis=0)
-		output 				=[np.asarray([[x]]) for x in output]
+		output 				=	(self.node_weight*error).sum(axis=0)
+		output 				=	[np.asarray([[x]]) for x in output]
+		one 				=	np.ones(self.gw.shape)
+		self.gw 			=	v.alpha*(one*(np.asarray(self.Input).reshape(1,-1)))*error + v.momt*self.gw
+		# print self.gw
+		self.node_weight-=self.gw
 		return output

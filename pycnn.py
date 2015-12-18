@@ -21,12 +21,12 @@ maxP2			=	layer.max_pool(16,2,2,sizeOfImage-4) #8
 #Hidden Layer 2
 
 sizeOfImage		=	int((sizeOfImage-4)/2)
-layer_2			=	layer.neuron_layer_cnn(16,4,32,sizeOfImage) #4
+layer_2			=	layer.neuron_layer_cnn(16,4,16,sizeOfImage) #4
 
 
 #fully Connected Layer
 sizeOfImage		=	int((sizeOfImage-3))
-Full_connected	=	layer.full_connected(32,v.classes)
+Full_connected	=	layer.full_connected(16,v.classes)
 
 #parsing data
 Y_act 	=	np.zeros((v.classes,1),np.uint8) 
@@ -37,7 +37,7 @@ for x in range(length):
 	F.log((x+1)*100.0/length)
 	Y_act[:,0]				=	0
 	Y_act[parsed[x][1],0]	=	1
-	img 	=	[parsed[x][0].astype(float)/2550]
+	img 	=	[parsed[x][0].astype(float)/255000]
 	img 	=	layer_0.Out(img)
 	img 	=	maxP1.Out(img)
 	img 	=	layer_1.Out(img)
@@ -46,7 +46,7 @@ for x in range(length):
 	Y_cal 	=	Full_connected.Out(img)
 	print np.hstack((Y_act,Y_cal))
 	Y_cal	=	F.final_out(Y_cal)[0] 
-	error 	= 	Full_connected.error_map(Y_cal - Y_act)
+	error 	= 	Full_connected.error_map(Y_cal-Y_act)
 	error 	= 	layer_2.error_map(error)
 	error 	= 	maxP2.error_map(error)
 	error 	= 	layer_1.error_map(error)

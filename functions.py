@@ -1,7 +1,7 @@
 import theano.tensor as T
 from theano import function
 import cv2 as cv 
-import numpy as np  
+import copy, numpy as np
 import math as mt
 import logging
 
@@ -11,8 +11,6 @@ def log(percent,flag=1):
         logging.info(percent)
     if flag==2:    
         logging.debug(percent)
-
-e=mt.exp(1)
 
 X 		= T.dmatrices('X')
 B 		= T.dmatrices('B')
@@ -26,6 +24,9 @@ P 		= T.scalar(dtype=X.dtype)
 output 		= 	(1/(1+T.exp(-X)))
 logistic 	= 	function([X], output)
 
+output1 	= 	T.tanh(-X)
+norm	 	= 	function([X], output1)
+
 # ouputs class for input sample
 prediction 	=	X>0.5
 final_out	=	function(inputs=[X], outputs=[prediction])
@@ -34,13 +35,8 @@ x 			= 	T.dot(W, Y)+B
 Net 		= 	function([W,Y,B], x)
 
 # Probability that target= 1
-xent 		= 	(Y_act-Y_cal)*99999999999999#-Y_act*T.log(Y_cal) - (1-Y_act) * T.log(1-Y_cal) # Cross-entropy loss function
+xent 		= 	(Y_act-Y_cal)
 Calc_Error 	=	function(inputs=[Y_act,Y_cal], outputs=[xent]) 
-
-
-# cost 		= 	Error + 0.01*(W**2).sum()# The cost to minimize
-# gradient	= 	T.grad(cost, W)             # Compute the gradient of the cost
-# grade 		= 	function(inputs=[Error,W], outputs=gradient)
 
 # Raise each element of W to power P
 raised		=	W**P

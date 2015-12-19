@@ -23,16 +23,16 @@ Error	= T.scalar(dtype=X.dtype)
 P 		= T.scalar(dtype=X.dtype)
 
 output 		= 	(1/(1+T.exp(-X)))
-logistic 	= 	function([X], output)
+sigmoid 	= 	function([X], output)
 
-output1 	= 	T.tanh(-X)
+output1 	= 	X#T.tanh(X)
 norm	 	= 	function([X], output1)
 
 # ouputs class for input sample
 prediction 	=	X>0.5
 final_out	=	function(inputs=[X], outputs=[prediction])
 
-x 			= 	T.dot(W, Y)+B
+x 			= 	T.dot(W, Y)-B
 Net 		= 	function([W,Y,B], x)
 
 # Probability that target= 1

@@ -1,13 +1,15 @@
 from functions import*
 import variables as v
+from pprint import *
 rng = np.random
 rng.seed(0)
 # contains components of each cel
+alpha = v.alpha
 class feature(object):
 	"""docstring for feature"""
 	def __init__(self,depth_of_input,kernal_size,Dimension_x):
-		self.W 			=	2*rng.random((1,depth_of_input*kernal_size*kernal_size))-1
-		self.B 			=	2*rng.random((1,1))-1
+		self.W 			=	rng.rand(1,depth_of_input*kernal_size*kernal_size)/v.scale
+		self.B 			=	[[0]]
 		self.gw 		=	np.zeros(self.W.shape)
 		self.kernal_size=	kernal_size
 		self.depth 		=	depth_of_input
@@ -29,15 +31,17 @@ class feature(object):
 			if col==self.Dimension_x:
 				row+=1
 				col=0
-		Output 	=	norm(Output.reshape(self.Dimension_x,-1))
+		Output 	=	norm(Output.reshape(self.Dimension_x,-1)/(self.depth*self.kernal_size**2))
 		return Output
 
 	def weights(self):
 		return self.W.reshape(-1,self.kernal_size)
 	
 	def update_weight(self,gw):
-		self.gw 	=	v.alpha*gw + v.momt*self.gw
-		self.W 		= 	(self.W - gw)
+		global alpha
+		self.gw 	=	alpha*gw + v.momt*self.gw 
+		self.W 	-= self.gw
+		# self.W=norm(self.W)
 
 # contains features of each layer
 class neuron_layer_cnn(object):
@@ -68,18 +72,19 @@ class neuron_layer_cnn(object):
 		Error_mat_gw 		=	[]
 		error_features_mat	=	np.zeros((self.depth_of_input*self.kernal_size,self.kernal_size))
 		Error_mat_pre_yr	=	[]
+		Error_pre_yr_iter	=	[]
 		error_pre_lyr		=	np.zeros((pre_size,pre_size))
 		for t in range(depth):
 			Error_mat_gw.append(error_features_mat)
 		for q in range(self.depth_of_input):
 			Error_mat_pre_yr.append(error_pre_lyr)
-		
+			Error_pre_yr_iter.append(error_pre_lyr)
 		i=0
 		j=0
 		for y in range(self.kernal_size**2):
 			for x in range(depth):
 				for w in range(self.depth_of_input):
-					Error_mat_gw[x][w*self.kernal_size+i,j]+=(self.Input[w][i:i+self.size,j:j+self.size]*Error[x]).sum()	
+					Error_mat_gw[x][w*self.kernal_size+i,j]+=((self.Input[w][i:i+self.size,j:j+self.size]*Error[x]).sum()/(self.size*self.size*self.depth_of_input))	
 			j+=1
 			if j==self.kernal_size:
 				j=0
@@ -90,11 +95,14 @@ class neuron_layer_cnn(object):
 		for f in range(self.size**2):
 			for x in range(self.depth_of_input):
 				for y in range(depth):
-					Error_mat_pre_yr[x][i:i+self.kernal_size,j:j+self.kernal_size]+=w_mat[y][self.kernal_size*x:self.kernal_size*(x+1),:]*Error[y][i,j]		
+					Error_mat_pre_yr[x][i:i+self.kernal_size,j:j+self.kernal_size]+=w_mat[y][self.kernal_size*x:self.kernal_size*(x+1),:]*Error[y][i,j]+v.penal*w_mat[y][self.kernal_size*x:self.kernal_size*(x+1),:]**2 		
+					Error_pre_yr_iter[x][i:i+self.kernal_size,j:j+self.kernal_size]+=1
 			j+=1
 			if j==self.size:
 				j=0
 				i+=1
+		for x in range(self.depth_of_input):
+			Error_mat_pre_yr[x]=Error_mat_pre_yr[x]*(Error_pre_yr_iter[x]**(-1))
 		for x in range(depth):
 			self.features_map[x].update_weight(Error_mat_gw[x].reshape(1,-1))
 		return Error_mat_pre_yr
@@ -112,6 +120,7 @@ class max_pool:
 	def Out(self,Input):
 		size_img=Input[0].shape[1]
 		self.Input=Input
+		# pprint(self.Input)
 		Output=[]
 		for x in range(self.depth):
 			row=0
@@ -148,19 +157,32 @@ class full_connected(object):
 	"""docstring for full_connected"""
 	def __init__(self, features,no_of_classes):
 		self.no_of_classes	=	no_of_classes
-		self.node_weight	=	2*rng.random((self.no_of_classes,features))-1
+		self.node_weight	=	rng.rand(self.no_of_classes,features)/v.scale
 		self.gw 			=	np.zeros((self.no_of_classes,features))
-		self.B 				=	2*rng.random((self.no_of_classes,1))-1
+		self.B 				=	rng.rand(self.no_of_classes,1)
+		self.features 		=	features
+		self.error_total 	=	0
 	def Out(self,Input):
-		self.Input 		=	norm([[x[0,0]] for x in Input])
-		# print self.Input
-		self.Output 	= 	logistic(Net(self.node_weight,self.Input,self.B))
+		self.Input 		=	[[x[0,0]] for x in Input]
+		self.Output 	= 	sigmoid(Net(self.node_weight,self.Input,self.B)/(self.features+1))
 		return self.Output
 	def error_map(self,error):
-		output 				=	(self.node_weight*error).sum(axis=0)
+		global alpha
+		# print sum(error)[0] 
+		# if sum(error)[0]>self.error_total:
+		# 	alpha*=1.1
+		# 	self.error_total=sum(error)[0]
+		# elif 2*sum(error)[0]<self.error_total:
+		# 	alpha*=0.9
+		# 	self.error_total=sum(error)[0]
+		# elif sum(error)[0]<self.error_total:
+		# 	self.error_total=sum(error)[0]	
+		output 				=	((self.node_weight*error + v.penal*self.node_weight**2).sum(axis=0))/(self.no_of_classes)
 		output 				=	[np.asarray([[x]]) for x in output]
 		one 				=	np.ones(self.gw.shape)
-		self.gw 			=	v.alpha*(one*(np.asarray(self.Input).reshape(1,-1)))*error + v.momt*self.gw
-		# print self.gw
-		self.node_weight-=self.gw
+		self.gw 			=	alpha*(one*(np.asarray(self.Input).reshape(1,-1)))*(error*(1-self.Output)*self.Output) + v.momt*self.gw 
+		self.node_weight 	-=  self.gw
+		pprint(np.hstack((self.gw,self.node_weight)))
+		pprint(output)
+		# self.node_weight=norm(self.node_weight)
 		return output

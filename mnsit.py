@@ -4,11 +4,6 @@ from cvxopt.base import matrix
 from pprint import *
 import struct
 import numpy as np
-"""
-Loosely inspired by http://abel.ee.ucla.edu/cvxopt/_downloads/mnist.py
-which is GPL licensed.
-"""
-
 
 def read(dataset = "training", path = "."):
     if dataset is "training":
@@ -39,9 +34,6 @@ def read(dataset = "training", path = "."):
     return(out)
 
 def show(image):
-    """
-    Render a given numpy.uint8 2D array of pixel data.
-    """
     from matplotlib import pyplot
     import matplotlib as mpl
     fig = pyplot.figure()

@@ -177,10 +177,11 @@ class full_connected(object):
 		# 	self.error_total=sum(error)[0]
 		# elif sum(error)[0]<self.error_total:
 		# 	self.error_total=sum(error)[0]	
+		error 				=	error*(1-self.Output)*self.Output
 		output 				=	((self.node_weight*error + v.penal*self.node_weight**2).sum(axis=0))/(self.no_of_classes)
 		output 				=	[np.asarray([[x]]) for x in output]
 		one 				=	np.ones(self.gw.shape)
-		self.gw 			=	alpha*(one*(np.asarray(self.Input).reshape(1,-1)))*(error*(1-self.Output)*self.Output) + v.momt*self.gw 
+		self.gw 			=	alpha*(one*(np.asarray(self.Input).reshape(1,-1)))*error + v.momt*self.gw 
 		self.node_weight 	-=  self.gw
 		pprint(np.hstack((self.gw,self.node_weight)))
 		pprint(output)

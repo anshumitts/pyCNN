@@ -1,8 +1,8 @@
 size_of_img	=	28
 kernal		= 	3 		#Kernel for Image overlay 
 alpha 		=	0.01 	#Learning rate
-momt 		=	0.001 	#momentum
-penal 		=	0.001
+momt 		=	0.0001 	#momentum
+penal 		=	0.0001
 scale 		=	1
 cellmatrix 	=	size_of_img
 loc_databse	=	"/home/anshul/Documents/paper_cs/LSTM/dataset"

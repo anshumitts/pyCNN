@@ -9,7 +9,7 @@ class feature(object):
 	"""docstring for feature"""
 	def __init__(self,depth_of_input,kernal_size,Dimension_x):
 		self.W 			=	rng.rand(1,depth_of_input*kernal_size*kernal_size)/v.scale
-		self.B 			=	[[0]]
+		self.B 			=	rng.rand(1,1)
 		self.gw 		=	np.zeros(self.W.shape)
 		self.kernal_size=	kernal_size
 		self.depth 		=	depth_of_input
@@ -164,7 +164,7 @@ class full_connected(object):
 		self.error_total 	=	0
 	def Out(self,Input):
 		self.Input 		=	[[x[0,0]] for x in Input]
-		self.Output 	= 	sigmoid(Net(self.node_weight,self.Input,self.B)/(self.features+1))
+		self.Output 	= 	sigmoid(Net(self.node_weight,self.Input,self.B))
 		return self.Output
 	def error_map(self,error):
 		global alpha
@@ -176,14 +176,15 @@ class full_connected(object):
 		# 	alpha*=0.9
 		# 	self.error_total=sum(error)[0]
 		# elif sum(error)[0]<self.error_total:
-		# 	self.error_total=sum(error)[0]	
-		error 				=	error*(1-self.Output)*self.Output
-		output 				=	((self.node_weight*error + v.penal*self.node_weight**2).sum(axis=0))/(self.no_of_classes)
-		output 				=	[np.asarray([[x]]) for x in output]
-		one 				=	np.ones(self.gw.shape)
-		self.gw 			=	alpha*(one*(np.asarray(self.Input).reshape(1,-1)))*error + v.momt*self.gw 
-		self.node_weight 	-=  self.gw
-		pprint(np.hstack((self.gw,self.node_weight)))
-		pprint(output)
-		# self.node_weight=norm(self.node_weight)
-		return output
+		# 	self.error_total=sum(error)[0]
+		if sum(error**2)[0]>0:
+			error 				=	error*(1-self.Output)*self.Output
+			output 				=	((self.node_weight*error + v.penal*self.node_weight**2).sum(axis=0))/(self.no_of_classes)
+			output 				=	[np.asarray([[x]]) for x in output]
+			one 				=	np.ones(self.gw.shape)
+			self.gw 			=	alpha*(one*(np.asarray(self.Input).reshape(1,-1)))*error + v.momt*self.gw
+			self.node_weight 	-=  self.gw
+			pprint(self.Input)
+			return output
+		else:
+			return [np.asarray([[0]]) for x in range(self.features)]

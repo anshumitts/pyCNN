@@ -45,7 +45,7 @@ for x in range(length):
 	Y_cal	=	F.final_out(Y_cal)[0]
 	F.log(np.hstack((Y_act,Y_cal)))
 	# Y_cal 	=	Y_cal/(sum(Y_cal)[0])
-	error 	= 	Full_connected.error_map(((Y_cal-Y_act))*1000)
+	error 	= 	Full_connected.error_map(((Y_act-Y_cal)))
 	error 	= 	layer_2.error_map(error)
 	error 	= 	maxP2.error_map(error)
 	error 	= 	layer_1.error_map(error)

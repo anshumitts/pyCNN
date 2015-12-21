@@ -40,7 +40,7 @@ class feature(object):
 	def update_weight(self,gw):
 		global alpha
 		self.gw 	=	alpha*gw + v.momt*self.gw 
-		self.W 	-= self.gw
+		self.W 	+= self.gw
 		# self.W=norm(self.W)
 
 # contains features of each layer
@@ -84,7 +84,7 @@ class neuron_layer_cnn(object):
 		for y in range(self.kernal_size**2):
 			for x in range(depth):
 				for w in range(self.depth_of_input):
-					Error_mat_gw[x][w*self.kernal_size+i,j]+=((self.Input[w][i:i+self.size,j:j+self.size]*Error[x]).sum()/(self.size*self.size*self.depth_of_input))	
+					Error_mat_gw[x][w*self.kernal_size+i,j]+=(self.Input[w][i:i+self.size,j:j+self.size]*Error[x]).sum()	
 			j+=1
 			if j==self.kernal_size:
 				j=0
@@ -95,14 +95,14 @@ class neuron_layer_cnn(object):
 		for f in range(self.size**2):
 			for x in range(self.depth_of_input):
 				for y in range(depth):
-					Error_mat_pre_yr[x][i:i+self.kernal_size,j:j+self.kernal_size]+=w_mat[y][self.kernal_size*x:self.kernal_size*(x+1),:]*Error[y][i,j]+v.penal*w_mat[y][self.kernal_size*x:self.kernal_size*(x+1),:]**2 		
-					Error_pre_yr_iter[x][i:i+self.kernal_size,j:j+self.kernal_size]+=1
+					W 	= 	w_mat[y][self.kernal_size*x:self.kernal_size*(x+1),:]
+					Error_mat_pre_yr[x][i:i+self.kernal_size,j:j+self.kernal_size]+=(W*Error[y][i,j]+v.penal*W)/depth 		
 			j+=1
 			if j==self.size:
 				j=0
 				i+=1
-		for x in range(self.depth_of_input):
-			Error_mat_pre_yr[x]=Error_mat_pre_yr[x]*(Error_pre_yr_iter[x]**(-1))
+		# for x in range(self.depth_of_input):
+		# 	Error_mat_pre_yr[x]=Error_mat_pre_yr[x]*(Error_pre_yr_iter[x]**(-1))
 		for x in range(depth):
 			self.features_map[x].update_weight(Error_mat_gw[x].reshape(1,-1))
 		return Error_mat_pre_yr
@@ -177,14 +177,11 @@ class full_connected(object):
 		# 	self.error_total=sum(error)[0]
 		# elif sum(error)[0]<self.error_total:
 		# 	self.error_total=sum(error)[0]
-		if sum(error**2)[0]>0:
-			error 				=	error*(1-self.Output)*self.Output
-			output 				=	((self.node_weight*error + v.penal*self.node_weight**2).sum(axis=0))/(self.no_of_classes)
-			output 				=	[np.asarray([[x]]) for x in output]
-			one 				=	np.ones(self.gw.shape)
-			self.gw 			=	alpha*(one*(np.asarray(self.Input).reshape(1,-1)))*error + v.momt*self.gw
-			self.node_weight 	-=  self.gw
-			pprint(self.Input)
-			return output
-		else:
-			return [np.asarray([[0]]) for x in range(self.features)]
+		error 				=	error*(1-self.Output)*self.Output
+		output 				=	(((self.node_weight)*error + v.penal*self.node_weight).sum(axis=0))/(self.no_of_classes)
+		output 				=	[np.asarray([[x]]) for x in output]
+		one 				=	np.ones(self.gw.shape)
+		self.gw 			=	alpha*(one*(np.asarray(self.Input).reshape(1,-1)))*error + v.momt*self.gw
+		self.node_weight 	+=  self.gw
+		pprint(self.node_weight)
+		return output
